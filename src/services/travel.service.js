@@ -2,6 +2,7 @@ import getAQIByCity from "../externalClients/aqi.client.js";
 import getNewsByCity from "../externalClients/news.client.js";
 import getTopAttractions from "../externalClients/places.client.js";
 import getWeatherByCity from "../externalClients/weather.client.js"
+import generateTravelRecommendation from "../utils/travelAdvisor.js";
 import transformAQI from "../utils/transformers/aqi.transfromer.js";
 import transformNews from "../utils/transformers/news.transformer.js";
 import transformPlaces from "../utils/transformers/places.transformer.js";
@@ -9,9 +10,12 @@ import transformWeather from "../utils/transformers/weather.transformer.js";
 
 const getTravelData = async (city) => {
     const [weatherResult, newsResult] = await Promise.allSettled([getWeatherByCity(city), getNewsByCity(city)])
-    let latitude = weatherResult.value.coord.lat
-    let longitude = weatherResult.value.coord.lon
+    let latitude = null
+    let longitude = null
     let weatherdata = null
+    // console.log(weatherResult);
+    // console.log(newsResult);
+    
     if(weatherResult.status === "fulfilled") {
         latitude = weatherResult.value.coord.lat
         longitude = weatherResult.value.coord.lon
@@ -23,28 +27,45 @@ const getTravelData = async (city) => {
         newsData = newsResult.value
 
     const [AQIResult, topAttractionsResult] = await Promise.allSettled([getAQIByCity(latitude, longitude), getTopAttractions(latitude, longitude)]) 
-    let AQIResultData
-    let topAttractionsResultData
+    let AQIResultData = null
+    let topAttractionsResultData = null
     if(AQIResult.status === "fulfilled")
         AQIResultData = AQIResult.value
-
+    
     if(topAttractionsResult.status === "fulfilled")
         topAttractionsResultData = topAttractionsResult.value
     
+    // console.log(AQIResult);
+    // console.log(topAttractionsResult);
+     
+    // Transform data
+    const weather = weatherdata 
+        ? transformWeather(weatherdata)
+        : "Weather data not available"
+
+    const topHeadlines = newsData 
+        ? transformNews(newsData)
+        : "News not available"
+
+    const AQI = AQIResultData
+        ? transformAQI(AQIResultData)
+        : "AQI not available" 
+    
+    const topPlaces = topAttractionsResultData
+        ? transformPlaces(topAttractionsResultData)
+        : "Top attractive places data not available"     
+        
+    // console.log("Wether: ", weather, "topHead: ", topHeadlines, "Aqi:", AQI, "places: ", topPlaces);
+    const recommendation = generateTravelRecommendation(weather, AQI)
+    // console.log(recommendation);
+    
     return {
         city,
-        weather: weatherdata 
-            ? transformWeather(weatherdata)
-            : "Weather data not available",
-        topheadlines: newsData 
-            ? transformNews(newsData)
-            : "News not available",
-        AQI: AQIResultData
-            ? transformAQI(AQIResultData)
-            : "AQI not available", 
-        topPlaces: topAttractionsResultData
-            ? transformPlaces(topAttractionsResultData)
-            : "Top attractive places data not available"
+        weather,
+        topHeadlines,
+        AQI, 
+        topPlaces,
+        recommendation
     }
 }
 
