@@ -2,6 +2,10 @@ import getAQIByCity from "../externalClients/aqi.client.js";
 import getNewsByCity from "../externalClients/news.client.js";
 import getTopAttractions from "../externalClients/places.client.js";
 import getWeatherByCity from "../externalClients/weather.client.js"
+import transformAQI from "../utils/transformers/aqi.transfromer.js";
+import transformNews from "../utils/transformers/news.transformer.js";
+import transformPlaces from "../utils/transformers/places.transformer.js";
+import transformWeather from "../utils/transformers/weather.transformer.js";
 
 const getTravelData = async (city) => {
     const [weatherResult, newsResult] = await Promise.allSettled([getWeatherByCity(city), getNewsByCity(city)])
@@ -30,23 +34,16 @@ const getTravelData = async (city) => {
     return {
         city,
         weather: weatherdata 
-            ? {
-                temperature: weatherdata.main.temp,
-                humidity: weatherdata.main.humidity
-            } 
+            ? transformWeather(weatherdata)
             : "Weather data not available",
         topheadlines: newsData 
-            ? newsData.articles.slice(0,5) 
+            ? transformNews(newsData)
             : "News not available",
         AQI: AQIResultData
-            ? AQIResultData.list[0].main
+            ? transformAQI(AQIResultData)
             : "AQI not available", 
         topPlaces: topAttractionsResultData
-            ? topAttractionsResultData.features.map(place => ({
-            name: place.properties.name || "Unnamed place",
-            address: place.properties.formatted,
-            category: place.properties.categories[0]
-            }))
+            ? transformPlaces(topAttractionsResultData)
             : "Top attractive places data not available"
     }
 }
