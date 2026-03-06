@@ -7,8 +7,18 @@ import transformAQI from "../utils/transformers/aqi.transfromer.js";
 import transformNews from "../utils/transformers/news.transformer.js";
 import transformPlaces from "../utils/transformers/places.transformer.js";
 import transformWeather from "../utils/transformers/weather.transformer.js";
+import {getCache, setCache} from "../cache/memory.cache.js"
 
 const getTravelData = async (city) => {
+    const key = `travel:${city}`
+    const cachedData = getCache(key)
+    if(cachedData) {
+        // console.log("Cache hit");
+        return cachedData
+    }
+
+    // console.log("Cache miss");
+    
     const [weatherResult, newsResult] = await Promise.allSettled([getWeatherByCity(city), getNewsByCity(city)])
     let latitude = null
     let longitude = null
@@ -58,8 +68,8 @@ const getTravelData = async (city) => {
     // console.log("Wether: ", weather, "topHead: ", topHeadlines, "Aqi:", AQI, "places: ", topPlaces);
     const recommendation = generateTravelRecommendation(weather, AQI)
     // console.log(recommendation);
-    
-    return {
+
+    const response = {
         city,
         weather,
         topHeadlines,
@@ -67,6 +77,10 @@ const getTravelData = async (city) => {
         topPlaces,
         recommendation
     }
+
+    setCache(key, response, 15 * 60 * 1000)
+    
+    return response
 }
 
 export default getTravelData
