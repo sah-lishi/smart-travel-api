@@ -8,23 +8,22 @@ import transformNews from "../utils/transformers/news.transformer.js";
 import transformPlaces from "../utils/transformers/places.transformer.js";
 import transformWeather from "../utils/transformers/weather.transformer.js";
 import {getCache, setCache} from "../cache/memory.cache.js"
+import { incrementcacheHits, incrementcacheMisses } from "../utils/metrics.store.js";
 
 const getTravelData = async (city) => {
     const key = `travel:${city}`
     const cachedData = getCache(key)
     if(cachedData) {
-        // console.log("Cache hit");
+        incrementcacheHits()
         return cachedData
     }
 
-    // console.log("Cache miss");
-    
+    incrementcacheMisses()
+
     const [weatherResult, newsResult] = await Promise.allSettled([getWeatherByCity(city), getNewsByCity(city)])
     let latitude = null
     let longitude = null
     let weatherdata = null
-    // console.log(weatherResult);
-    // console.log(newsResult);
     
     if(weatherResult.status === "fulfilled") {
         latitude = weatherResult.value.coord.lat
@@ -44,9 +43,6 @@ const getTravelData = async (city) => {
     
     if(topAttractionsResult.status === "fulfilled")
         topAttractionsResultData = topAttractionsResult.value
-    
-    // console.log(AQIResult);
-    // console.log(topAttractionsResult);
      
     // Transform data
     const weather = weatherdata 

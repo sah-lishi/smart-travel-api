@@ -1,8 +1,9 @@
 import express from "express"
 import getTravelInfo from "../controllers/travel.controller.js"
+import metricMiddleware from "../middlewares/metrics.middleware.js"
 
 const router = express.Router()
 
-router.get("/travel", getTravelInfo)
+router.route("/").get(metricMiddleware, getTravelInfo)
 
 export default router
