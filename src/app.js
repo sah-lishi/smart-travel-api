@@ -1,16 +1,18 @@
 import express from "express"
-import router from "./routes/travel.routes.js"
+import travelRoute from "./routes/travel.routes.js"
+import metricRouter from "./routes/metrics.route.js"
 import rateLimit from "express-rate-limit"
 
 const app = express()
 
 app.use(express.json())
 
-const rateLimit = rateLimit({
-    window: 20 * 60 * 1000,
+app.use(rateLimit({
+    windowMs: 20 * 60 * 1000,
     max: 50,
     message: "Too many requests..."
-})
-app.use(rateLimit)
-app.use("/", router)
+}))
+app.use("/api/v1/travel", travelRoute)
+app.use("/api/v1/metrics", metricRouter)
+
 export default app
