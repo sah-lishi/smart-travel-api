@@ -8,9 +8,9 @@ const _config = {
     openWeatherApiKey: process.env.OPENWEATHER_API_KEY,
     gNewsApiKey: process.env.GNEWS_API_KEY,
     geoApifyKey: process.env.GEOAPIFY_API_KEY,
-    weatherBaseUrl: "https://api.openweathermap.org/data/2.5",
-    newsBaseUrl: "https://gnews.io/api/v4",
-    geoApifyBaseUrl: "https://api.geoapify.com/v2"
+    weatherBaseUrl: process.env.WEATHER_BASE_URL,
+    newsBaseUrl: process.env.NEWS_BASE_URL,
+    geoApifyBaseUrl: process.env.GEOAPIFY_BASE_URL
 }
 
 export default _config
