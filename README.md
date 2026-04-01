@@ -110,7 +110,7 @@ Public Endpoints:
 
 1. Clone the repository
 ```bash
-git clone https://github.com/your-username/smart-travel-api.git
+git clone https://github.com/sah-lishi/smart-travel-api.git
 ```
 
 2. Install dependencies
