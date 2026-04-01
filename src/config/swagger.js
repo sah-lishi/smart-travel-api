@@ -10,7 +10,7 @@ const options = {
         },
         servers: [
             {
-                url: "",
+                url: "https://smart-travel-api.onrender.com/api/v1",
                 description: "Production server"
             },
             {
